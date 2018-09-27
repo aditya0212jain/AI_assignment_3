@@ -1,0 +1,1 @@
+java Solver $1

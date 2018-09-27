@@ -38,6 +38,7 @@ public class convertToGraph{
         Scanner s2 = new Scanner(f2);
         // System.out.println(s2.nextLine());
         String stemp = s2.nextLine();
+        if(stemp.equals("SAT")){
         int count=0;
         String finalToFile="";
         String toFile="";
@@ -64,6 +65,13 @@ public class convertToGraph{
         bf.write(toFile);
         bf.close();
         file.close();
+        }else{
+            FileWriter file = new FileWriter(args[0]+".subgraphs");
+        BufferedWriter bf = new BufferedWriter(file);
+        bf.write("0");
+        bf.close();
+        file.close();
+        }   
     }
 
 

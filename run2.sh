@@ -1,0 +1,1 @@
+java convertToGraph $1
