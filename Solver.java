@@ -52,8 +52,13 @@ public class Solver {
 		s.close();
 		FileWriter file = new FileWriter(args[0]+".satinput");
 		BufferedWriter bf = new BufferedWriter(file);
-		bf.write("p cnf "+(k*vertices)+" "+"5\n");
-		//-----------------------------Clauses for the Completeness of graphs---------------------------------
+		// bf.write("p cnf "+(k*vertices)+" "+"5\n");
+		int numberVar=0;
+		int numberClauses=0;
+		String stringToFile="";
+		int count=k-1;
+		numberVar=k*vertices;
+		//-----------------------------Clauses for the Completeness of graphs  C1---------------------------------
 		for(int i=0;i<vertices;i++){
 			for(int j=i;j<vertices;j++){
 				if(isEdge[i][j]==false){
@@ -62,13 +67,78 @@ public class Solver {
 						int secondVar = getID(l,j+1);
 						firstVar = -1*firstVar;
 						secondVar = -1*secondVar;
-						bf.write(firstVar+" "+secondVar+" 0"+"\n");
+						// bf.write(firstVar+" "+secondVar+" 0"+"\n");
+						stringToFile +=firstVar+" "+secondVar+" 0"+"\n";
+						numberClauses++;
+					}
+				}else{
+					count++;
+					numberVar+=k;
+					String firstLine="";
+					for(int l=1;l<=k;l++){
+						firstLine += getID(count,l)+" ";
+					}
+					firstLine+="0";
+					stringToFile+=firstLine+"\n";
+					numberClauses++;
+					for(int l=1;l<=k;l++){
+						String temp ="";
+						temp += (-1*getID(count,l));
+						stringToFile+=temp+" "+getID(l-1,i+1)+" 0\n";
+						stringToFile+=temp+" "+getID(l-1,j+1)+" 0\n";
+						numberClauses+=2;
 					}
 				}
 			}
 		}
-
-
+		
+		//------------------------------End for C1---------------------------------------------------------------
+		//-------------------------------Clauses for the Subgraph Conditions C2-------------------------------------
+		
+		for(int i=0;i<k;i++){
+			for(int j=i+1;j<k;j++){
+				////printing Z1 Z2 Z3... Zn
+				for(int to=0;to<2;to++){
+					count++;
+					numberVar+=vertices;
+					String firstLine="";
+					for(int l=1;l<=vertices;l++){
+						firstLine += getID(count,l)+" ";
+					}
+					firstLine+="0";
+					// System.out.println(firstLine);
+					// bf.write(firstLine+"\n");
+					stringToFile+=firstLine+"\n";
+					numberClauses++;
+					for(int l=1;l<=vertices;l++){
+						String temp ="";
+						temp+=(-1*getID(count,l));
+						if(to==0){
+							// bf.write(temp+" "+getID(i,l)+" 0\n");
+							// bf.write(temp+" -"+getID(j,l)+" 0\n");
+							stringToFile+=temp+" "+getID(i,l)+" 0\n";
+							stringToFile+=temp+" -"+getID(j,l)+" 0\n";
+							numberClauses+=2;
+						}else{
+							// bf.write(temp+" -"+getID(i,l)+" 0\n");
+							// bf.write(temp+" "+getID(j,l)+" 0\n");
+							stringToFile+=temp+" -"+getID(i,l)+" 0\n";
+							stringToFile+=temp+" "+getID(j,l)+" 0\n";
+							numberClauses+=2;
+						}
+					}
+				}
+			}
+		}
+		for(int j=1;j<=vertices;j++){
+			for(int i=0;i<k;i++){
+				stringToFile+=getID(i,j)+" ";
+			}
+			stringToFile+="0\n";
+			numberClauses++;
+		}
+		bf.write("p cnf "+numberVar+" "+numberClauses+"\n");
+		bf.write(stringToFile);
 		bf.close();
 		file.close();
 	}
